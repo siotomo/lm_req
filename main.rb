@@ -1,15 +1,38 @@
 require "json"
 require "faraday"
 require "pry"
+require "dotenv/load"
+
+require_relative "./summarize_response"
+
 
 p 'start'
 
-conn = Faraday.new(url: "https://api.openai.com") { |f| f.request :json; f.response :json }
+# URL
+URL = "https://api.openai.com"
+ENDPOINT = "/v1/responses"
 
-res = conn.post("/v1/responses") do |r|
+# Model
+MODEL = "gpt-5-nano"
+MAX_OUTPUT_TOKENS = 10_000
+TEMPATURE = 0.2 # ランダム性(0.0~1.0)
+SEED = 1 # 再現性
+
+conn = Faraday.new(url: URL) { |f| f.request :json; f.response :json }
+
+res = conn.post(ENDPOINT) do |r|
   r.headers["Authorization"] = "Bearer #{ENV["OPENAI_API_KEY"]}"
   r.headers["Content-Type"]  = "application/json"
-  r.body = { model: "gpt-5-mini", input: "短歌を1つ" }
+  r.body = {
+    model: MODEL,
+    input: "短歌を1つ",
+    max_output_tokens: MAX_OUTPUT_TOKENS,
+    # temperature: TEMPATURE
+  }
 end
 
-puts res.body.dig("output", 0, "content", 0, "text")
+p '--------------'
+p res.body['output'].last['content'].first['text']
+p '--------------'
+
+pp summarize_openai_response(res)
