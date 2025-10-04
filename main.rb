@@ -25,7 +25,7 @@ res = conn.post(ENDPOINT) do |r|
   r.headers["Content-Type"]  = "application/json"
   r.body = {
     model: MODEL,
-    input: "短歌を1つ",
+    input: ARGV[0],
     max_output_tokens: MAX_OUTPUT_TOKENS,
     # temperature: TEMPATURE
   }
